@@ -28,6 +28,18 @@ pub fn solve(k: &BigUint, c: &BigUint, x: &BigUint, q: &BigUint) -> BigUint {
     }
 }
 
+// unified formula (mathematically equivalent)
+pub fn solve_unified(k: &BigUint, c: &BigUint, x: &BigUint, q: &BigUint) -> BigUint {
+    let cx = c * x;
+    if *k >= cx {
+        // in case of k >= c*x: k - c*x mod q
+        (k - &cx).modpow(&BigUint::from(1u32), q)
+    } else {
+        // k < c*x: q - (c*x - k) mod q
+        q - (cx - k).modpow(&BigUint::from(1u32), q)
+    }
+}
+
 // cond1: r1 = g ** s * y1 ** c mod p
 // cond2: r2 = h ** s * y2 ** c mod p
 pub fn verify(params: &VerificationParams) -> bool {
@@ -43,6 +55,69 @@ pub fn verify(params: &VerificationParams) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_modulo_arithmetic() {
+        let q = BigUint::from(11u32);
+
+        // case 1: k >= c * x
+        let k1 = BigUint::from(7u32);
+        let c1 = BigUint::from(2u32);
+        let x1 = BigUint::from(3u32);
+        // k1 - c1 * x1 = 7 - 2*3 = 7 - 6 = 1
+        let s1 = solve(&k1, &c1, &x1, &q);
+        println!("Case 1: k={}, c={}, x={}, s={}", k1, c1, x1, s1);
+
+        // case 2: k < c * x
+        let k2 = BigUint::from(3u32);
+        let c2 = BigUint::from(2u32);
+        let x2 = BigUint::from(3u32);
+        // k2 - c2 * x2 = 3 - 2*3 = 3 - 6 = -3
+        // -3 mod 11 = 8
+        let s2 = solve(&k2, &c2, &x2, &q);
+        println!("Case 2: k={}, c={}, x={}, s={}", k2, c2, x2, s2);
+
+        // manual calculation
+        let manual_s2 = &q - &(&c2 * &x2 - &k2);
+        println!("Manual calculation: q - (c*x - k) = {}", manual_s2);
+
+        assert_eq!(s1, BigUint::from(1u32));
+        assert_eq!(s2, BigUint::from(8u32));
+        assert_eq!(s2, manual_s2);
+    }
+
+    #[test]
+    fn test_unified_formula() {
+        let q = BigUint::from(11u32);
+
+        // case 1: k >= c * x
+        let k1 = BigUint::from(7u32);
+        let c1 = BigUint::from(2u32);
+        let x1 = BigUint::from(3u32);
+
+        let s1_original = solve(&k1, &c1, &x1, &q);
+        let s1_unified = solve_unified(&k1, &c1, &x1, &q);
+        println!(
+            "Case 1 - Original: {}, Unified: {}",
+            s1_original, s1_unified
+        );
+
+        // case 2: k < c * x
+        let k2 = BigUint::from(3u32);
+        let c2 = BigUint::from(2u32);
+        let x2 = BigUint::from(3u32);
+
+        let s2_original = solve(&k2, &c2, &x2, &q);
+        let s2_unified = solve_unified(&k2, &c2, &x2, &q);
+        println!(
+            "Case 2 - Original: {}, Unified: {}",
+            s2_original, s2_unified
+        );
+
+        // both results are the same
+        assert_eq!(s1_original, s1_unified);
+        assert_eq!(s2_original, s2_unified);
+    }
 
     #[test]
     fn test_pointer_comparison() {

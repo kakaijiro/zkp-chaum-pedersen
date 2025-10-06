@@ -1,4 +1,5 @@
 use num_bigint::BigUint;
+use std::fmt::{Debug, Display};
 
 #[derive(Debug, Clone)]
 pub struct VerificationParams<'a> {
@@ -50,6 +51,44 @@ pub fn verify(params: &VerificationParams) -> bool {
         == (params.h.modpow(params.s, params.p) * params.y2.modpow(params.c, params.p))
             .modpow(&BigUint::from(1u32), params.p);
     cond1 && cond2
+}
+
+// trait: cryptographic operation
+pub trait CryptographicOperation {
+    fn compute(&self, input: &BigUint) -> BigUint;
+    fn name(&self) -> &str;
+}
+
+// implementation: exponentiation
+#[derive(Debug)]
+pub struct Exponentiation {
+    pub base: BigUint,
+    pub modulus: BigUint,
+}
+
+impl CryptographicOperation for Exponentiation {
+    fn compute(&self, exponent: &BigUint) -> BigUint {
+        self.base.modpow(exponent, &self.modulus)
+    }
+
+    fn name(&self) -> &str {
+        "Exponentiation"
+    }
+}
+
+impl Display for Exponentiation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "base={}, modulus={}", self.base, self.modulus)
+    }
+}
+
+// generic function: process operation
+pub fn process_operation<T: CryptographicOperation + Display>(
+    operation: &T,
+    input: &BigUint,
+) -> BigUint {
+    println!("Processing {}: {}", operation.name(), operation);
+    operation.compute(input)
 }
 
 #[cfg(test)]
@@ -117,6 +156,28 @@ mod tests {
         // both results are the same
         assert_eq!(s1_original, s1_unified);
         assert_eq!(s2_original, s2_unified);
+    }
+
+    #[test]
+    fn test_trait_import_example() {
+        // use imported trait
+        let base = BigUint::from(4u32);
+        let modulus = BigUint::from(23u32);
+        let exponent = BigUint::from(6u32);
+
+        let exp_op = Exponentiation { base, modulus };
+
+        // use Display trait
+        println!("Exponentiation: {}", exp_op);
+
+        // use Debug trait
+        println!("Debug: {:?}", exp_op);
+
+        // use custom trait
+        let result = exp_op.compute(&exponent);
+        println!("Result: {}", result);
+
+        assert_eq!(result, BigUint::from(2u32));
     }
 
     #[test]

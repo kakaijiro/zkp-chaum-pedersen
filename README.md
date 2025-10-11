@@ -226,18 +226,6 @@ cargo clean
 cargo build
 ```
 
-## 🤝 貢献
-
-1. フォークを作成
-2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. プルリクエストを作成
-
-## 📞 サポート
-
-問題や質問がある場合は、GitHubのIssuesページで報告してください。
-
 ## 🔗 参考資料
 
 - [Chaum-Pedersen Protocol](https://crypto.stackexchange.com/questions/99262/chaum-pedersen-protocol)

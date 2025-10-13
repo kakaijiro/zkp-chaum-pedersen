@@ -8,13 +8,15 @@ RustとTonicを使用したZero-Knowledge Proof（ゼロ知識証明）のChaum-
 
 ## 🚀 機能
 
-- **Chaum-Pedersenプロトコル**: 離散対数問題に基づくゼロ知識証明
-- **gRPCサーバー/クライアント**: Tonicを使用した非同期通信
+- **Chaum-Pedersenプロトコル**: 離散対数問題に基づくゼロ知識証明の完全実装
+- **gRPCサーバー**: Tonicを使用した非同期通信サーバー
 - **プロトコルバッファ**: 型安全なメッセージ定義
 - **ランダム数生成**: セキュアな暗号学的乱数生成
-- **1024ビット定数**: 実用的なセキュリティレベル
+- **1024ビット定数**: 実用的なセキュリティレベル（RFC 5114準拠）
 - **ユーザー管理**: ハッシュマップベースのユーザー情報管理
+- **認証フロー**: 登録→チャレンジ→検証の3段階認証プロセス
 - **エラーハンドリング**: 適切なエラー処理とログ出力
+- **包括的テスト**: 8つのユニットテストによる検証
 
 ## 🛠️ 技術スタック
 
@@ -46,9 +48,9 @@ tonic-prost-build = "0.14.2"
 ```
 zkp-chaum-pedersen/
 ├── src/
-│   ├── lib.rs          # ZKP実装とテスト
-│   ├── server.rs       # gRPCサーバー
-│   ├── client.rs       # gRPCクライアント
+│   ├── lib.rs          # ZKP実装とテスト（8つのテスト、完全実装）
+│   ├── server.rs       # gRPCサーバー（2/3エンドポイント実装済み）
+│   ├── client.rs       # gRPCクライアント（基本実装のみ）
 │   └── zkp_auth.rs     # 生成されたprotobufコード
 ├── proto/
 │   └── zkp_auth.proto  # Protocol Buffers定義
@@ -96,6 +98,8 @@ cargo run --bin server
 ```bash
 cargo run --bin client
 ```
+
+**注意**: 現在のクライアントは基本的なHello World実装のみです。完全なクライアント機能は開発中です。
 
 ### サーバー停止
 
@@ -166,6 +170,14 @@ service Auth {
 - `AuthenticationAnswerRequest`: 認証応答（auth_id, s）
 - `AuthenticationAnswerResponse`: 認証結果（session_id）
 
+### API実装状況
+
+| エンドポイント | 実装状況 | 説明 |
+|---|---|---|
+| `Register` | ✅ 完了 | ユーザー登録機能（y1, y2の保存） |
+| `CreateAuthenticationChallenge` | ✅ 完了 | 認証チャレンジ生成（r1, r2の保存、cの生成） |
+| `VerifyAuthentication` | 🚧 開発中 | 認証検証機能（`todo!()`状態） |
+
 ## 🏗️ 実装状況
 
 ### ✅ 完了済み
@@ -174,19 +186,23 @@ service Auth {
 - **Tonic統合**: gRPCサーバー/クライアントの基本実装
 - **バージョン互換性**: Tonic 0.14.2対応
 - **ユーザー管理**: ハッシュマップベースのユーザー情報管理
-- **Registerエンドポイント**: ユーザー登録機能の実装
+- **Registerエンドポイント**: ユーザー登録機能の完全実装
+- **CreateAuthenticationChallengeエンドポイント**: 認証チャレンジ機能の実装
+- **Chaum-Pedersenプロトコル**: ZKPライブラリの完全実装
 - **エラーハンドリング**: 適切なエラー処理とログ出力
 - **テスト**: 8つのユニットテスト（すべて成功）
+- **1024ビット定数**: 実用的なセキュリティレベルの実装
 
 ### 🚧 開発中
 
-- **AuthenticationChallengeエンドポイント**: 認証チャレンジ機能
-- **VerifyAuthenticationエンドポイント**: 認証検証機能
-- **Chaum-Pedersenプロトコル**: 完全なゼロ知識証明の実装
+- **VerifyAuthenticationエンドポイント**: 認証検証機能（`todo!()`状態）
+- **gRPCクライアント**: 基本的なクライアント実装（Hello World状態）
 
 ### 📋 今後の予定
 
-- **完全なプロトコル実装**: 3つのエンドポイントの完全実装
+- **VerifyAuthenticationエンドポイントの完全実装**: 認証検証ロジックの実装
+- **gRPCクライアントの実装**: 完全なクライアント機能
+- **セッション管理**: 認証後のセッション管理機能
 - **セキュリティ強化**: より堅牢なエラーハンドリング
 - **パフォーマンス最適化**: 大規模ユーザー対応
 - **ドキュメント**: API仕様書の詳細化

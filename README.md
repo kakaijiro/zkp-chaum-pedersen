@@ -48,10 +48,12 @@ tonic-prost-build = "0.14.2"
 ```
 zkp-chaum-pedersen/
 ├── src/
-│   ├── lib.rs          # ZKP実装とテスト（8つのテスト、完全実装）
+│   ├── lib.rs          # ZKP実装とテスト（9つのテスト、完全実装）
 │   ├── server.rs       # gRPCサーバー（3/3エンドポイント完全実装）
 │   ├── client.rs       # gRPCクライアント（基本実装のみ）
 │   └── zkp_auth.rs     # 生成されたprotobufコード
+├── examples/
+│   └── test_zero_values.rs  # ゼロ値脆弱性のデモ
 ├── proto/
 │   └── zkp_auth.proto  # Protocol Buffers定義
 ├── build.rs            # ビルドスクリプト
@@ -76,8 +78,22 @@ cargo build
 ## 🧪 テスト実行
 
 ```bash
+# 全テスト実行
 cargo test
+
+# ゼロ値脆弱性の検証テスト
+cargo test test_zero_values_with_nonzero_challenge -- --nocapture
+
+# ゼロ値脆弱性のデモ実行
+cargo run --example test_zero_values
 ```
+
+### テスト内容
+
+- **8つのユニットテスト**: ZKPプロトコルの数学的正確性を検証
+- **ゼロ値脆弱性テスト**: 認証バイパスの存在を確認
+- **トイ例テスト**: 小さな値での動作確認
+- **1024ビット定数テスト**: 実用的なセキュリティレベルでの検証
 
 ## 🚀 使用方法
 
@@ -149,6 +165,34 @@ Chaum-Pedersenプロトコルは、離散対数問題に基づくゼロ知識証
 - **ランダム性**: 各セッションで異なるランダム値を使用
 - **ゼロ知識性**: 秘密情報を漏洩しない
 
+### ⚠️ 既知の脆弱性
+
+#### ゼロ値による認証バイパス
+**発見日**: 2024年12月
+**影響**: 重大 - 認証システムの完全バイパスが可能
+
+**詳細**:
+- `y1`, `y2`, `r1`, `r2`, `s`に空文字列（`""`）を送信すると、これらは`BigUint::from(0u32)`に変換される
+- 検証式 `r1 == (g^s * y1^c) mod p` と `r2 == (h^s * y2^c) mod p` において：
+  - `g^0 mod p = 1`, `h^0 mod p = 1`
+  - `0^c mod p = 0` (c > 0の場合)
+  - `1 * 0 mod p = 0`
+  - 結果: `0 == 0` となり、認証が成功してしまう
+
+**検証方法**:
+```bash
+# テストで確認
+cargo test test_zero_values_with_nonzero_challenge -- --nocapture
+
+# 例として実行
+cargo run --example test_zero_values
+```
+
+**対策**:
+- Register時に`y1`, `y2`が非ゼロであることを検証
+- 認証時に`r1`, `r2`が非ゼロであることを検証
+- 実装予定: 入力値の妥当性チェック機能
+
 ## 📖 API仕様
 
 ### gRPCサービス
@@ -191,7 +235,7 @@ service Auth {
 - **VerifyAuthenticationエンドポイント**: 認証検証機能の完全実装
 - **Chaum-Pedersenプロトコル**: ZKPライブラリの完全実装
 - **エラーハンドリング**: 適切なエラー処理とログ出力
-- **テスト**: 8つのユニットテスト（すべて成功）
+- **テスト**: 9つのユニットテスト（すべて成功、ゼロ値脆弱性テスト含む）
 - **1024ビット定数**: 実用的なセキュリティレベルの実装
 - **セッション管理**: 認証成功時のセッションID生成
 
@@ -202,8 +246,8 @@ service Auth {
 ### 📋 今後の予定
 
 - **gRPCクライアントの実装**: 完全なクライアント機能
+- **セキュリティ強化**: ゼロ値脆弱性の修正（入力値検証の実装）
 - **セッション管理の拡張**: セッション有効期限、セッション無効化機能
-- **セキュリティ強化**: より堅牢なエラーハンドリング
 - **パフォーマンス最適化**: 大規模ユーザー対応
 - **ドキュメント**: API仕様書の詳細化
 - **ログ機能**: 詳細な認証ログと監査機能
@@ -231,6 +275,27 @@ kill <PID>
 wget https://github.com/fullstorydev/grpcurl/releases/download/v1.8.7/grpcurl_1.8.7_linux_x86_64.tar.gz
 tar -xzf grpcurl_1.8.7_linux_x86_64.tar.gz
 sudo mv grpcurl /usr/local/bin/
+```
+
+#### PostmanでのgRPCテスト時のエラー
+```bash
+# エラー: "Message violates its Protobuf type definition"
+# 原因: bytes型フィールドに文字列"0"を送信
+# 解決策: 空文字列""またはBase64エンコードされた値を送信
+
+# 正しい入力例
+{
+  "user": "jirok",
+  "y1": "",     # 空文字列（空のバイト配列）
+  "y2": ""      # 空文字列（空のバイト配列）
+}
+
+# または
+{
+  "user": "jirok",
+  "y1": "AA==",  # Base64 for empty bytes
+  "y2": "AA=="   # Base64 for empty bytes
+}
 ```
 
 #### ビルドエラー

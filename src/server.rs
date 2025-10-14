@@ -54,7 +54,7 @@ impl Auth for AuthImpl {
         &self,
         request: Request<AuthenticationChallengeRequest>,
     ) -> Result<Response<AuthenticationChallengeResponse>, Status> {
-        println!("Processing callange request: {:?}", request);
+        println!("Processing challenge request: {:?}", request);
 
         let request = request.into_inner();
         let user_name = request.user.clone();
@@ -111,6 +111,7 @@ impl Auth for AuthImpl {
                 &user_info.c,
                 &BigUint::from_bytes_be(&s),
             );
+            println!("verification: {}", verification);
 
             if verification {
                 let session_id = ZKP::generate_random_string(12);

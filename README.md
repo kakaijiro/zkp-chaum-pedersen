@@ -168,7 +168,7 @@ The Chaum-Pedersen protocol is a zero-knowledge proof protocol based on the disc
 ### ⚠️ Known Vulnerabilities
 
 #### Zero-Value Authentication Bypass
-**Discovery Date**: December 2024
+**Discovery Date**: October 14, 2025
 **Impact**: Critical - Complete authentication system bypass possible
 
 **Details**:

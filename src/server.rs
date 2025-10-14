@@ -54,7 +54,7 @@ impl Auth for AuthImpl {
         &self,
         request: Request<AuthenticationChallengeRequest>,
     ) -> Result<Response<AuthenticationChallengeResponse>, Status> {
-        println!("Processing register request: {:?}", request);
+        println!("Processing callange request: {:?}", request);
 
         let request = request.into_inner();
         let user_name = request.user.clone();
@@ -65,8 +65,10 @@ impl Auth for AuthImpl {
             user_info.r2 = BigUint::from_bytes_be(&request.r2);
 
             let (_, _, _, q) = ZKP::get_constants();
-            let c = ZKP::generate_random_below(&q);
-            let auth_id = "skdjfsk".to_string();
+            let c = ZKP::generate_random_number_below(&q);
+            let auth_id = ZKP::generate_random_string(12);
+
+            user_info.c = c.clone();
 
             let auth_id_to_user = &mut self.auth_id_to_user.lock().unwrap();
             auth_id_to_user.insert(auth_id.clone(), user_name);
@@ -87,7 +89,45 @@ impl Auth for AuthImpl {
         &self,
         request: Request<AuthenticationAnswerRequest>,
     ) -> Result<Response<AuthenticationAnswerResponse>, Status> {
-        todo!()
+        println!("Processing verification request: {:?}", request);
+
+        let request = request.into_inner();
+        let auth_id = request.auth_id.clone();
+        let user_info_hashmap = &mut self.auth_id_to_user.lock().unwrap();
+
+        if let Some(user_name) = user_info_hashmap.get(&auth_id) {
+            let user_info_hashmap = &mut self.user_info.lock().unwrap();
+            let user_info = user_info_hashmap.get_mut(user_name).unwrap();
+
+            // verification
+            let s = request.s.clone();
+            let (g, h, p, q) = ZKP::get_constants();
+            let zkp = ZKP { p, q, g, h };
+            let verification = zkp.verify(
+                &user_info.r1,
+                &user_info.r2,
+                &user_info.y1,
+                &user_info.y2,
+                &user_info.c,
+                &BigUint::from_bytes_be(&s),
+            );
+
+            if verification {
+                let session_id = ZKP::generate_random_string(12);
+                user_info.session_id = session_id.clone();
+                Ok(Response::new(AuthenticationAnswerResponse { session_id }))
+            } else {
+                Err(Status::new(
+                    Code::PermissionDenied,
+                    format!("AuthId: {} is not verified", auth_id),
+                ))
+            }
+        } else {
+            Err(Status::new(
+                Code::NotFound,
+                format!("AuthId: {} not found in the database", auth_id),
+            ))
+        }
     }
 }
 

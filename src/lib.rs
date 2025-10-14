@@ -364,6 +364,128 @@ mod tests {
         let result = zkp.verify(&r1, &r2, &y1, &y2, &c, &s);
         assert!(result);
     }
+
+    #[test]
+    fn test_verify_sample_data() {
+        // ZKP setup (using small values for easier testing)
+        let zkp = ZKP {
+            p: BigUint::from(23u32), // prime
+            q: BigUint::from(11u32), // subgroup size
+            g: BigUint::from(4u32),  // generator
+            h: BigUint::from(9u32),  // another generator
+        };
+
+        println!("=== Successful Cases ===");
+
+        // Successful case 1: correct secret value and random value
+        let x1 = BigUint::from(6u32); // secret value
+        let k1 = BigUint::from(7u32); // random value
+        let c1 = BigUint::from(4u32); // challenge
+
+        let y1_1 = ZKP::exponentiate(&zkp.g, &x1, &zkp.p); // g^x mod p
+        let y2_1 = ZKP::exponentiate(&zkp.h, &x1, &zkp.p); // h^x mod p
+        let r1_1 = ZKP::exponentiate(&zkp.g, &k1, &zkp.p); // g^k mod p
+        let r2_1 = ZKP::exponentiate(&zkp.h, &k1, &zkp.p); // h^k mod p
+        let s1 = zkp.solve(&k1, &c1, &x1); // s = k - c*x mod q
+
+        println!("Successful case 1:");
+        println!("  x={}, k={}, c={}", x1, k1, c1);
+        println!("  y1={}, y2={}", y1_1, y2_1);
+        println!("  r1={}, r2={}", r1_1, r2_1);
+        println!("  s={}", s1);
+
+        let result1 = zkp.verify(&r1_1, &r2_1, &y1_1, &y2_1, &c1, &s1);
+        println!("  Verification result: {}", result1);
+        assert!(result1);
+
+        // Successful case 2: with different values
+        let x2 = BigUint::from(3u32);
+        let k2 = BigUint::from(5u32);
+        let c2 = BigUint::from(2u32);
+
+        let y1_2 = ZKP::exponentiate(&zkp.g, &x2, &zkp.p);
+        let y2_2 = ZKP::exponentiate(&zkp.h, &x2, &zkp.p);
+        let r1_2 = ZKP::exponentiate(&zkp.g, &k2, &zkp.p);
+        let r2_2 = ZKP::exponentiate(&zkp.h, &k2, &zkp.p);
+        let s2 = zkp.solve(&k2, &c2, &x2);
+
+        println!("Successful case 2:");
+        println!("  x={}, k={}, c={}", x2, k2, c2);
+        println!("  y1={}, y2={}", y1_2, y2_2);
+        println!("  r1={}, r2={}", r1_2, r2_2);
+        println!("  s={}", s2);
+
+        let result2 = zkp.verify(&r1_2, &r2_2, &y1_2, &y2_2, &c2, &s2);
+        println!("  Verification result: {}", result2);
+        assert!(result2);
+
+        println!("\n=== Failed Cases ===");
+
+        // Failed case 1: calculate s with wrong secret value
+        let x_fake = BigUint::from(7u32); // wrong secret value
+        let s_fake = zkp.solve(&k1, &c1, &x_fake);
+
+        println!("Failed case 1: calculate s with wrong secret value");
+        println!("  Correct x={}, Wrong x={}", x1, x_fake);
+        println!("  Correct s={}, Wrong s={}", s1, s_fake);
+
+        let result_fake1 = zkp.verify(&r1_1, &r2_1, &y1_1, &y2_1, &c1, &s_fake);
+        println!("  Verification result: {}", result_fake1);
+        assert!(!result_fake1);
+
+        // Failed case 2: use wrong r1
+        let r1_wrong = BigUint::from(1u32); // wrong r1
+
+        println!("Failed case 2: use wrong r1");
+        println!("  Correct r1={}, Wrong r1={}", r1_1, r1_wrong);
+
+        let result_fake2 = zkp.verify(&r1_wrong, &r2_1, &y1_1, &y2_1, &c1, &s1);
+        println!("  Verification result: {}", result_fake2);
+        assert!(!result_fake2);
+
+        // Failed case 3: use wrong r2
+        let r2_wrong = BigUint::from(1u32); // wrong r2
+
+        println!("Failed case 3: use wrong r2");
+        println!("  Correct r2={}, Wrong r2={}", r2_1, r2_wrong);
+
+        let result_fake3 = zkp.verify(&r1_1, &r2_wrong, &y1_1, &y2_1, &c1, &s1);
+        println!("  Verification result: {}", result_fake3);
+        assert!(!result_fake3);
+
+        // Failed case 4: use wrong c
+        let c_wrong = BigUint::from(1u32); // wrong c
+
+        println!("Failed case 4: use wrong c");
+        println!("  Correct c={}, Wrong c={}", c1, c_wrong);
+
+        let result_fake4 = zkp.verify(&r1_1, &r2_1, &y1_1, &y2_1, &c_wrong, &s1);
+        println!("  Verification result: {}", result_fake4);
+        assert!(!result_fake4);
+
+        // Failed case 5: use wrong y1
+        let y1_wrong = BigUint::from(1u32); // wrong y1
+
+        println!("Failed case 5: use wrong y1");
+        println!("  Correct y1={}, Wrong y1={}", y1_1, y1_wrong);
+
+        let result_fake5 = zkp.verify(&r1_1, &r2_1, &y1_wrong, &y2_1, &c1, &s1);
+        println!("  Verification result: {}", result_fake5);
+        assert!(!result_fake5);
+
+        // Failed case 6: use wrong y2
+        let y2_wrong = BigUint::from(1u32); // wrong y2
+
+        println!("Failed case 6: use wrong y2");
+        println!("  Correct y2={}, Wrong y2={}", y2_1, y2_wrong);
+
+        let result_fake6 = zkp.verify(&r1_1, &r2_1, &y1_1, &y2_wrong, &c1, &s1);
+        println!("  Verification result: {}", result_fake6);
+        assert!(!result_fake6);
+
+        println!("\n=== Test Completed ===");
+        println!("All test cases worked as expected!");
+    }
 }
 
 // The hexadecimal value of the prime is:

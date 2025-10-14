@@ -1,32 +1,32 @@
-# ZKP Chaum-Pedersen プロトコル実装
+# ZKP Chaum-Pedersen Protocol Implementation
 
-RustとTonicを使用したZero-Knowledge Proof（ゼロ知識証明）のChaum-Pedersenプロトコルの実装です。
+A complete implementation of the Chaum-Pedersen Zero-Knowledge Proof protocol using Rust and Tonic.
 
-## 📋 概要
+## 📋 Overview
 
-このプロジェクトは、Chaum-Pedersenプロトコルを使用した認証システムを実装しています。ゼロ知識証明により、秘密情報を明かすことなく、その情報を知っていることを証明できます。
+This project implements an authentication system using the Chaum-Pedersen protocol. Zero-knowledge proofs allow proving knowledge of secret information without revealing the information itself.
 
-## 🚀 機能
+## 🚀 Features
 
-- **Chaum-Pedersenプロトコル**: 離散対数問題に基づくゼロ知識証明の完全実装
-- **gRPCサーバー**: Tonicを使用した非同期通信サーバー
-- **プロトコルバッファ**: 型安全なメッセージ定義
-- **ランダム数生成**: セキュアな暗号学的乱数生成
-- **1024ビット定数**: 実用的なセキュリティレベル（RFC 5114準拠）
-- **ユーザー管理**: ハッシュマップベースのユーザー情報管理
-- **認証フロー**: 登録→チャレンジ→検証の3段階認証プロセス（完全実装）
-- **エラーハンドリング**: 適切なエラー処理とログ出力
-- **包括的テスト**: 8つのユニットテストによる検証
+- **Chaum-Pedersen Protocol**: Complete implementation of discrete logarithm-based zero-knowledge proof
+- **gRPC Server**: Asynchronous communication server using Tonic
+- **Protocol Buffers**: Type-safe message definitions
+- **Random Number Generation**: Cryptographically secure random number generation
+- **1024-bit Constants**: Practical security level (RFC 5114 compliant)
+- **User Management**: HashMap-based user information management
+- **Authentication Flow**: Complete 3-stage authentication process (Registration → Challenge → Verification)
+- **Error Handling**: Proper error handling and logging
+- **Comprehensive Testing**: Verification through 9 unit tests
 
-## 🛠️ 技術スタック
+## 🛠️ Tech Stack
 
-- **Rust**: システムプログラミング言語
-- **Tonic**: gRPCフレームワーク
-- **Prost**: Protocol Buffers実装
-- **Tokio**: 非同期ランタイム
-- **num-bigint**: 多倍長整数演算
+- **Rust**: Systems programming language
+- **Tonic**: gRPC framework
+- **Prost**: Protocol Buffers implementation
+- **Tokio**: Async runtime
+- **num-bigint**: Arbitrary precision integer arithmetic
 
-## 📦 依存関係
+## 📦 Dependencies
 
 ```toml
 [dependencies]
@@ -43,31 +43,31 @@ tonic-build = "0.14.2"
 tonic-prost-build = "0.14.2"
 ```
 
-## 🏗️ プロジェクト構造
+## 🏗️ Project Structure
 
 ```
 zkp-chaum-pedersen/
 ├── src/
-│   ├── lib.rs          # ZKP実装とテスト（9つのテスト、完全実装）
-│   ├── server.rs       # gRPCサーバー（3/3エンドポイント完全実装）
-│   ├── client.rs       # gRPCクライアント（基本実装のみ）
-│   └── zkp_auth.rs     # 生成されたprotobufコード
+│   ├── lib.rs          # ZKP implementation and tests (9 tests, complete)
+│   ├── server.rs       # gRPC server (3/3 endpoints fully implemented)
+│   ├── client.rs       # gRPC client (basic implementation only)
+│   └── zkp_auth.rs     # Generated protobuf code
 ├── examples/
-│   └── test_zero_values.rs  # ゼロ値脆弱性のデモ
+│   └── test_zero_values.rs  # Zero-value vulnerability demo
 ├── proto/
-│   └── zkp_auth.proto  # Protocol Buffers定義
-├── build.rs            # ビルドスクリプト
-└── Cargo.toml          # プロジェクト設定
+│   └── zkp_auth.proto  # Protocol Buffers definition
+├── build.rs            # Build script
+└── Cargo.toml          # Project configuration
 ```
 
-## 🔧 セットアップ
+## 🔧 Setup
 
-### 前提条件
+### Prerequisites
 
-- Rust 1.75以上
+- Rust 1.75 or higher
 - Cargo
 
-### インストール
+### Installation
 
 ```bash
 git clone <repository-url>
@@ -75,127 +75,127 @@ cd zkp-chaum-pedersen
 cargo build
 ```
 
-## 🧪 テスト実行
+## 🧪 Running Tests
 
 ```bash
-# 全テスト実行
+# Run all tests
 cargo test
 
-# ゼロ値脆弱性の検証テスト
+# Run zero-value vulnerability verification test
 cargo test test_zero_values_with_nonzero_challenge -- --nocapture
 
-# ゼロ値脆弱性のデモ実行
+# Run zero-value vulnerability demo
 cargo run --example test_zero_values
 ```
 
-### テスト内容
+### Test Coverage
 
-- **8つのユニットテスト**: ZKPプロトコルの数学的正確性を検証
-- **ゼロ値脆弱性テスト**: 認証バイパスの存在を確認
-- **トイ例テスト**: 小さな値での動作確認
-- **1024ビット定数テスト**: 実用的なセキュリティレベルでの検証
+- **9 Unit Tests**: Verification of ZKP protocol mathematical correctness
+- **Zero-Value Vulnerability Test**: Confirmation of authentication bypass existence
+- **Toy Example Tests**: Operation verification with small values
+- **1024-bit Constants Test**: Verification at practical security level
 
-## 🚀 使用方法
+## 🚀 Usage
 
-### サーバー起動
+### Starting the Server
 
 ```bash
 cargo run --bin server
 ```
 
-サーバーが起動すると以下のメッセージが表示されます：
+The server will display the following message when started:
 ```
 🚀 Starting server on 127.0.0.1:50051...
 📡 Server is ready to accept connections
 ```
 
-### クライアント実行
+### Running the Client
 
 ```bash
 cargo run --bin client
 ```
 
-**注意**: 現在のクライアントは基本的なHello World実装のみです。完全なクライアント機能は開発中です。
+**Note**: The current client only has basic Hello World implementation. Complete client functionality is under development.
 
-### サーバー停止
+### Stopping the Server
 
-サーバーを停止するには、ターミナルで `Ctrl+C` を押すか、以下のコマンドを実行：
+To stop the server, press `Ctrl+C` in the terminal or run:
 
 ```bash
-# プロセス確認
+# Check process status
 ss -tulpn | grep 50051
 
-# プロセス停止
+# Stop process
 kill <PID>
 ```
 
-### gRPCクライアントツール
+### gRPC Client Tools
 
-VS Code拡張機能（grpc-clicker）やgrpcurlを使用してテストできます：
+You can test using VS Code extensions (grpc-clicker) or grpcurl:
 
 ```bash
-# grpcurlでのテスト例
+# Example with grpcurl
 echo '{"user":"test","y1":"","y2":""}' | grpcurl -plaintext -d @ 127.0.0.1:50051 zkp_auth.Auth/Register
 ```
 
-## 📚 Chaum-Pedersenプロトコル
+## 📚 Chaum-Pedersen Protocol
 
-### 概要
+### Overview
 
-Chaum-Pedersenプロトコルは、離散対数問題に基づくゼロ知識証明プロトコルです。
+The Chaum-Pedersen protocol is a zero-knowledge proof protocol based on the discrete logarithm problem.
 
-### パラメータ
+### Parameters
 
-- **p**: 大きな素数（1024ビット）
-- **q**: p-1の素因数
-- **g**: 生成元
-- **h**: g^α mod p（αは秘密）
+- **p**: Large prime number (1024 bits)
+- **q**: Prime factor of p-1
+- **g**: Generator
+- **h**: g^α mod p (α is secret)
 
-### プロトコル手順
+### Protocol Steps
 
-1. **登録**: Proverは y1 = g^x mod p, y2 = h^x mod p を送信
-2. **チャレンジ**: Proverは r1 = g^k mod p, r2 = h^k mod p を送信
-3. **レスポンス**: Verifierはランダムなチャレンジ c を送信
-4. **証明**: Proverは s = k - c*x mod q を送信
-5. **検証**: Verifierは r1 = g^s * y1^c mod p と r2 = h^s * y2^c mod p を検証
+1. **Registration**: Prover sends y1 = g^x mod p, y2 = h^x mod p
+2. **Challenge**: Prover sends r1 = g^k mod p, r2 = h^k mod p
+3. **Response**: Verifier sends random challenge c
+4. **Proof**: Prover sends s = k - c*x mod q
+5. **Verification**: Verifier verifies r1 = g^s * y1^c mod p and r2 = h^s * y2^c mod p
 
-## 🔒 セキュリティ
+## 🔒 Security
 
-- **離散対数問題**: 計算困難性に基づくセキュリティ
-- **ランダム性**: 各セッションで異なるランダム値を使用
-- **ゼロ知識性**: 秘密情報を漏洩しない
+- **Discrete Logarithm Problem**: Security based on computational difficulty
+- **Randomness**: Different random values used for each session
+- **Zero-Knowledge**: No leakage of secret information
 
-### ⚠️ 既知の脆弱性
+### ⚠️ Known Vulnerabilities
 
-#### ゼロ値による認証バイパス
-**発見日**: 2024年12月
-**影響**: 重大 - 認証システムの完全バイパスが可能
+#### Zero-Value Authentication Bypass
+**Discovery Date**: December 2024
+**Impact**: Critical - Complete authentication system bypass possible
 
-**詳細**:
-- `y1`, `y2`, `r1`, `r2`, `s`に空文字列（`""`）を送信すると、これらは`BigUint::from(0u32)`に変換される
-- 検証式 `r1 == (g^s * y1^c) mod p` と `r2 == (h^s * y2^c) mod p` において：
+**Details**:
+- Sending empty strings (`""`) for `y1`, `y2`, `r1`, `r2`, `s` converts them to `BigUint::from(0u32)`
+- In verification equations `r1 == (g^s * y1^c) mod p` and `r2 == (h^s * y2^c) mod p`:
   - `g^0 mod p = 1`, `h^0 mod p = 1`
-  - `0^c mod p = 0` (c > 0の場合)
+  - `0^c mod p = 0` (when c > 0)
   - `1 * 0 mod p = 0`
-  - 結果: `0 == 0` となり、認証が成功してしまう
+  - Result: `0 == 0`, causing authentication to succeed
 
-**検証方法**:
+**Verification Method**:
 ```bash
-# テストで確認
+# Verify with test
 cargo test test_zero_values_with_nonzero_challenge -- --nocapture
 
-# 例として実行
+# Run as example
 cargo run --example test_zero_values
 ```
 
-**対策**:
-- Register時に`y1`, `y2`が非ゼロであることを検証
-- 認証時に`r1`, `r2`が非ゼロであることを検証
-- 実装予定: 入力値の妥当性チェック機能
+**Mitigation**:
+- Validate that `y1`, `y2` are non-zero during registration
+- Validate that `r1`, `r2` are non-zero during authentication
+- Planned implementation: Input validation functionality
 
-## 📖 API仕様
+## 📖 API Specification
 
-### gRPCサービス
+### gRPC Service
 
 ```protobuf
 service Auth {
@@ -205,92 +205,92 @@ service Auth {
 }
 ```
 
-### メッセージ型
+### Message Types
 
-- `RegisterRequest`: ユーザー登録（user, y1, y2）
-- `RegisterResponse`: 登録応答
-- `AuthenticationChallengeRequest`: 認証チャレンジ要求（user, r1, r2）
-- `AuthenticationChallengeResponse`: チャレンジ応答（auth_id, c）
-- `AuthenticationAnswerRequest`: 認証応答（auth_id, s）
-- `AuthenticationAnswerResponse`: 認証結果（session_id）
+- `RegisterRequest`: User registration (user, y1, y2)
+- `RegisterResponse`: Registration response
+- `AuthenticationChallengeRequest`: Authentication challenge request (user, r1, r2)
+- `AuthenticationChallengeResponse`: Challenge response (auth_id, c)
+- `AuthenticationAnswerRequest`: Authentication answer (auth_id, s)
+- `AuthenticationAnswerResponse`: Authentication result (session_id)
 
-### API実装状況
+### API Implementation Status
 
-| エンドポイント | 実装状況 | 説明 |
+| Endpoint | Status | Description |
 |---|---|---|
-| `Register` | ✅ 完了 | ユーザー登録機能（y1, y2の保存） |
-| `CreateAuthenticationChallenge` | ✅ 完了 | 認証チャレンジ生成（r1, r2の保存、cの生成） |
-| `VerifyAuthentication` | ✅ 完了 | 認証検証機能（ZKP検証とセッション管理） |
+| `Register` | ✅ Complete | User registration functionality (y1, y2 storage) |
+| `CreateAuthenticationChallenge` | ✅ Complete | Authentication challenge generation (r1, r2 storage, c generation) |
+| `VerifyAuthentication` | ✅ Complete | Authentication verification functionality (ZKP verification and session management) |
 
-## 🏗️ 実装状況
+## 🏗️ Implementation Status
 
-### ✅ 完了済み
+### ✅ Completed
 
-- **プロジェクトセットアップ**: Cargo.toml、build.rs、プロトコル定義
-- **Tonic統合**: gRPCサーバー/クライアントの基本実装
-- **バージョン互換性**: Tonic 0.14.2対応
-- **ユーザー管理**: ハッシュマップベースのユーザー情報管理
-- **Registerエンドポイント**: ユーザー登録機能の完全実装
-- **CreateAuthenticationChallengeエンドポイント**: 認証チャレンジ機能の実装
-- **VerifyAuthenticationエンドポイント**: 認証検証機能の完全実装
-- **Chaum-Pedersenプロトコル**: ZKPライブラリの完全実装
-- **エラーハンドリング**: 適切なエラー処理とログ出力
-- **テスト**: 9つのユニットテスト（すべて成功、ゼロ値脆弱性テスト含む）
-- **1024ビット定数**: 実用的なセキュリティレベルの実装
-- **セッション管理**: 認証成功時のセッションID生成
+- **Project Setup**: Cargo.toml, build.rs, protocol definitions
+- **Tonic Integration**: Basic gRPC server/client implementation
+- **Version Compatibility**: Tonic 0.14.2 support
+- **User Management**: HashMap-based user information management
+- **Register Endpoint**: Complete user registration functionality
+- **CreateAuthenticationChallenge Endpoint**: Authentication challenge functionality
+- **VerifyAuthentication Endpoint**: Complete authentication verification functionality
+- **Chaum-Pedersen Protocol**: Complete ZKP library implementation
+- **Error Handling**: Proper error handling and logging
+- **Testing**: 9 unit tests (all passing, including zero-value vulnerability test)
+- **1024-bit Constants**: Implementation at practical security level
+- **Session Management**: Session ID generation upon successful authentication
 
-### 🚧 開発中
+### 🚧 In Development
 
-- **gRPCクライアント**: 基本的なクライアント実装（Hello World状態）
+- **gRPC Client**: Basic client implementation (Hello World state)
 
-### 📋 今後の予定
+### 📋 Future Plans
 
-- **gRPCクライアントの実装**: 完全なクライアント機能
-- **セキュリティ強化**: ゼロ値脆弱性の修正（入力値検証の実装）
-- **セッション管理の拡張**: セッション有効期限、セッション無効化機能
-- **パフォーマンス最適化**: 大規模ユーザー対応
-- **ドキュメント**: API仕様書の詳細化
-- **ログ機能**: 詳細な認証ログと監査機能
+- **gRPC Client Implementation**: Complete client functionality
+- **Security Enhancement**: Zero-value vulnerability fix (input validation implementation)
+- **Session Management Extension**: Session expiration, session invalidation functionality
+- **Performance Optimization**: Large-scale user support
+- **Documentation**: Detailed API specification documentation
+- **Logging Functionality**: Detailed authentication logs and audit functionality
 
-## 📄 ライセンス
+## 📄 License
 
-このプロジェクトはMITライセンスの下で公開されています。詳細は`LICENSE`ファイルを参照してください。
+This project is released under the MIT License. See the `LICENSE` file for details.
 
-## 🐛 トラブルシューティング
+## 🐛 Troubleshooting
 
-### よくある問題
+### Common Issues
 
-#### サーバーが起動しない
+#### Server Won't Start
 ```bash
-# ポートの使用状況を確認
+# Check port usage
 ss -tulpn | grep 50051
 
-# 既存のプロセスを停止
+# Stop existing process
 kill <PID>
 ```
 
-#### gRPCクライアントツールのエラー
+#### gRPC Client Tool Errors
 ```bash
-# grpcurlがインストールされていない場合
+# If grpcurl is not installed
 wget https://github.com/fullstorydev/grpcurl/releases/download/v1.8.7/grpcurl_1.8.7_linux_x86_64.tar.gz
 tar -xzf grpcurl_1.8.7_linux_x86_64.tar.gz
 sudo mv grpcurl /usr/local/bin/
 ```
 
-#### PostmanでのgRPCテスト時のエラー
+#### Postman gRPC Testing Errors
 ```bash
-# エラー: "Message violates its Protobuf type definition"
-# 原因: bytes型フィールドに文字列"0"を送信
-# 解決策: 空文字列""またはBase64エンコードされた値を送信
+# Error: "Message violates its Protobuf type definition"
+# Cause: Sending string "0" to bytes type field
+# Solution: Send empty string "" or Base64 encoded value
 
-# 正しい入力例
+# Correct input example
 {
   "user": "jirok",
-  "y1": "",     # 空文字列（空のバイト配列）
-  "y2": ""      # 空文字列（空のバイト配列）
+  "y1": "",     # Empty string (empty byte array)
+  "y2": ""      # Empty string (empty byte array)
 }
 
-# または
+# Or
 {
   "user": "jirok",
   "y1": "AA==",  # Base64 for empty bytes
@@ -298,20 +298,25 @@ sudo mv grpcurl /usr/local/bin/
 }
 ```
 
-#### ビルドエラー
+#### Build Errors
 ```bash
-# 依存関係の更新
+# Update dependencies
 cargo update
 
-# クリーンビルド
+# Clean build
 cargo clean
 cargo build
 ```
 
-## 🔗 参考資料
+## 🔗 References
 
 - [Chaum-Pedersen Protocol](https://crypto.stackexchange.com/questions/99262/chaum-pedersen-protocol)
 - [Cryptography: An Introduction (3rd Edition)](https://www.cs.umd.edu/~waa/414-F11/IntroToCrypto.pdf)
 - [Tonic Documentation](https://github.com/hyperium/tonic)
 - [Rust Book](https://doc.rust-lang.org/book/)
 - [Protocol Buffers](https://developers.google.com/protocol-buffers)
+
+## 🌐 Internationalization
+
+- **English**: This README.md
+- **Japanese**: [README.jp.md](README.jp.md)

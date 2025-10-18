@@ -16,7 +16,8 @@ This project implements an authentication system using the Chaum-Pedersen protoc
 - **User Management**: HashMap-based user information management
 - **Authentication Flow**: Complete 3-stage authentication process (Registration → Challenge → Verification)
 - **Error Handling**: Proper error handling and logging
-- **Comprehensive Testing**: Verification through 9 unit tests
+- **Comprehensive Testing**: Verification through 11 unit tests
+- **Complete Client Implementation**: Full interactive client with user input and authentication flow
 
 ## 🛠️ Tech Stack
 
@@ -48,9 +49,9 @@ tonic-prost-build = "0.14.2"
 ```
 zkp-chaum-pedersen/
 ├── src/
-│   ├── lib.rs          # ZKP implementation and tests (9 tests, complete)
+│   ├── lib.rs          # ZKP implementation and tests (11 tests, complete)
 │   ├── server.rs       # gRPC server (3/3 endpoints fully implemented)
-│   ├── client.rs       # gRPC client (basic implementation only)
+│   ├── client.rs       # gRPC client (complete implementation with full auth flow)
 │   └── zkp_auth.rs     # Generated protobuf code
 ├── examples/
 │   └── test_zero_values.rs  # Zero-value vulnerability demo
@@ -90,7 +91,7 @@ cargo run --example test_zero_values
 
 ### Test Coverage
 
-- **9 Unit Tests**: Verification of ZKP protocol mathematical correctness
+- **11 Unit Tests**: Verification of ZKP protocol mathematical correctness
 - **Zero-Value Vulnerability Test**: Confirmation of authentication bypass existence
 - **Toy Example Tests**: Operation verification with small values
 - **1024-bit Constants Test**: Verification at practical security level
@@ -115,7 +116,25 @@ The server will display the following message when started:
 cargo run --bin client
 ```
 
-**Note**: The current client only has basic Hello World implementation. Complete client functionality is under development.
+The client will prompt you for:
+1. **Username** for registration
+2. **Password** for registration (used to generate y1, y2)
+3. **Password** for authentication (used to solve the challenge)
+
+**Example Output**:
+```
+✅ Client connected to server
+Please enter username:
+jiro
+Please enter password:
+123
+✅ User registered successfully: Response { ... }
+✅ Authentication challenge created successfully: AuthenticationChallengeResponse { auth_id: "k7UqwUlr8Ggj", c: [...] }
+========== verify authentication ==========
+Please enter password to login:
+123
+✅ Authentication verified successfully. Session ID: abc123def456
+```
 
 ### Stopping the Server
 
@@ -227,7 +246,7 @@ service Auth {
 ### ✅ Completed
 
 - **Project Setup**: Cargo.toml, build.rs, protocol definitions
-- **Tonic Integration**: Basic gRPC server/client implementation
+- **Tonic Integration**: Complete gRPC server/client implementation
 - **Version Compatibility**: Tonic 0.14.2 support
 - **User Management**: HashMap-based user information management
 - **Register Endpoint**: Complete user registration functionality
@@ -235,17 +254,17 @@ service Auth {
 - **VerifyAuthentication Endpoint**: Complete authentication verification functionality
 - **Chaum-Pedersen Protocol**: Complete ZKP library implementation
 - **Error Handling**: Proper error handling and logging
-- **Testing**: 9 unit tests (all passing, including zero-value vulnerability test)
+- **Testing**: 11 unit tests (all passing, including zero-value vulnerability test)
 - **1024-bit Constants**: Implementation at practical security level
 - **Session Management**: Session ID generation upon successful authentication
+- **Complete Client Implementation**: Full interactive client with complete authentication flow
 
 ### 🚧 In Development
 
-- **gRPC Client**: Basic client implementation (Hello World state)
+- **None** - All core functionality is complete
 
 ### 📋 Future Plans
 
-- **gRPC Client Implementation**: Complete client functionality
 - **Security Enhancement**: Zero-value vulnerability fix (input validation implementation)
 - **Session Management Extension**: Session expiration, session invalidation functionality
 - **Performance Optimization**: Large-scale user support

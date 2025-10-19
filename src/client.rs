@@ -25,7 +25,7 @@ async fn main() {
     let mut client = match AuthClient::connect("http://127.0.0.1:50051").await {
         Ok(client) => client,
         Err(e) => {
-            eprintln!("Failed to connect to the server: {}", e);
+            eprintln!("❌ Failed to connect to the server: {}", e);
             std::process::exit(1);
         }
     };
@@ -35,7 +35,7 @@ async fn main() {
     let username = match read_input("Please enter username:") {
         Ok(name) => name,
         Err(e) => {
-            eprintln!("Failed to fetch username: {}", e);
+            eprintln!("❌ Failed to fetch username: {}", e);
             std::process::exit(1);
         }
     };
@@ -44,7 +44,7 @@ async fn main() {
     let password_input = match read_input("Please enter password:") {
         Ok(input) => input,
         Err(e) => {
-            eprintln!("Failed to fetch password: {}", e);
+            eprintln!("❌ Failed to fetch password: {}", e);
             std::process::exit(1);
         }
     };
@@ -66,7 +66,7 @@ async fn main() {
         }
         Err(e) => {
             println!("❌ Error registering user: {:?}", e);
-            return;
+            std::process::exit(1);
         }
     }
 
@@ -95,7 +95,7 @@ async fn main() {
         }
         Err(e) => {
             println!("❌ Error creating authentication challenge: {:?}", e);
-            return;
+            std::process::exit(1);
         }
     };
 
@@ -104,7 +104,7 @@ async fn main() {
     let password_input = match read_input("Please enter password to login:") {
         Ok(input) => input,
         Err(e) => {
-            eprintln!("Failed to fetch password: {}", e);
+            eprintln!("❌ Failed to fetch password: {}", e);
             std::process::exit(1);
         }
     };
@@ -128,7 +128,7 @@ async fn main() {
         }
         Err(e) => {
             println!("❌ Error verifying authentication: {:?}", e);
-            return;
+            std::process::exit(1);
         }
     };
 

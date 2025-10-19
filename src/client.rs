@@ -13,7 +13,6 @@ fn read_input(prompt: &str) -> Result<String, std::io::Error> {
 
 #[tokio::main]
 async fn main() {
-    let mut buf = String::new();
     let (g, h, p, q) = ZKP::get_constants();
     let zkp = ZKP {
         p: p.clone(),
@@ -39,7 +38,6 @@ async fn main() {
             std::process::exit(1);
         }
     };
-    buf.clear();
 
     let password_input = match read_input("Please enter password:") {
         Ok(input) => input,
@@ -49,7 +47,6 @@ async fn main() {
         }
     };
     let password = BigUint::from_bytes_be(password_input.as_bytes());
-    buf.clear();
 
     let y1 = ZKP::exponentiate(&zkp.g, &password, &zkp.p);
     let y2 = ZKP::exponentiate(&zkp.h, &password, &zkp.p);
@@ -109,7 +106,6 @@ async fn main() {
         }
     };
     let password = BigUint::from_bytes_be(password_input.as_bytes());
-    buf.clear();
 
     let c_biguint = BigUint::from_bytes_be(&c);
     let s = zkp.solve(&k, &c_biguint, &password);

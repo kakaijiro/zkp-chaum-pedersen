@@ -4,6 +4,13 @@ use auth_client::AuthClient;
 use num_bigint::BigUint;
 use zkp_chaum_pedersen::ZKP;
 
+fn read_input(prompt: &str) -> Result<String, std::io::Error> {
+    println!("{}", prompt);
+    let mut buf = String::new();
+    stdin().read_line(&mut buf)?;
+    Ok(buf.trim().to_string())
+}
+
 #[tokio::main]
 async fn main() {
     let mut buf = String::new();
@@ -15,18 +22,33 @@ async fn main() {
         h: h.clone(),
     };
 
-    let mut client = AuthClient::connect("http://127.0.0.1:50051").await.unwrap();
+    let mut client = match AuthClient::connect("http://127.0.0.1:50051").await {
+        Ok(client) => client,
+        Err(e) => {
+            eprintln!("Failed to connect to the server: {}", e);
+            std::process::exit(1);
+        }
+    };
     println!("✅ Client connected to server");
 
     // Register
-    println!("Please enter username:");
-    stdin().read_line(&mut buf).expect("Failed to read line");
-    let username = buf.trim().to_string();
+    let username = match read_input("Please enter username:") {
+        Ok(name) => name,
+        Err(e) => {
+            eprintln!("Failed to fetch username: {}", e);
+            std::process::exit(1);
+        }
+    };
     buf.clear();
 
-    println!("Please enter password:");
-    stdin().read_line(&mut buf).expect("Failed to read line");
-    let password = BigUint::from_bytes_be(buf.trim().as_bytes());
+    let password_input = match read_input("Please enter password:") {
+        Ok(input) => input,
+        Err(e) => {
+            eprintln!("Failed to fetch password: {}", e);
+            std::process::exit(1);
+        }
+    };
+    let password = BigUint::from_bytes_be(password_input.as_bytes());
     buf.clear();
 
     let y1 = ZKP::exponentiate(&zkp.g, &password, &zkp.p);
@@ -79,9 +101,14 @@ async fn main() {
 
     // Verify authentication
     println!("========== verify authentication ==========");
-    println!("Please enter password to login:");
-    stdin().read_line(&mut buf).expect("Failed to read line");
-    let password = BigUint::from_bytes_be(buf.trim().as_bytes());
+    let password_input = match read_input("Please enter password to login:") {
+        Ok(input) => input,
+        Err(e) => {
+            eprintln!("Failed to fetch password: {}", e);
+            std::process::exit(1);
+        }
+    };
+    let password = BigUint::from_bytes_be(password_input.as_bytes());
     buf.clear();
 
     let c_biguint = BigUint::from_bytes_be(&c);
